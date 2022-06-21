@@ -15,7 +15,7 @@ var (
 	newLineByts = []byte("\n")
 )
 
-type kafkaWritter struct {
+type KafkaWritter struct {
 	writter    *kafka.Writer
 	logWritter *bufio.Writer
 }
@@ -30,7 +30,7 @@ type KafkaWritterConfig struct {
 	LogFileName  string
 }
 
-func NewKafkaWritter(config KafkaWritterConfig) (*kafkaWritter, error) {
+func NewKafkaWritter(config KafkaWritterConfig) (*KafkaWritter, error) {
 	if len(config.Brokers) == 0 {
 		return nil, errors.New("cannot create a kafka writer with an empty list of brokers")
 	}
@@ -47,7 +47,7 @@ func NewKafkaWritter(config KafkaWritterConfig) (*kafkaWritter, error) {
 		AllowAutoTopicCreation: true,
 	}
 
-	kw := &kafkaWritter{writter: w, logWritter: nil}
+	kw := &KafkaWritter{writter: w, logWritter: nil}
 
 	if "" != config.LogFileName {
 		fh, err := os.OpenFile(config.LogFileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
@@ -61,7 +61,7 @@ func NewKafkaWritter(config KafkaWritterConfig) (*kafkaWritter, error) {
 	return kw, nil
 }
 
-func (kw *kafkaWritter) Write(msg []byte) {
+func (kw *KafkaWritter) Write(msg []byte) {
 	// as key is not specified
 	// message can go to any partition using a round-robin technique
 	err := kw.writter.WriteMessages(
@@ -78,7 +78,7 @@ func (kw *kafkaWritter) Write(msg []byte) {
 	}
 }
 
-func (kw *kafkaWritter) Close() error {
+func (kw *KafkaWritter) Close() error {
 	if nil != kw.logWritter {
 		kw.logWritter.Flush()
 	}
