@@ -15,6 +15,8 @@ var (
 	newLineByts = []byte("\n")
 )
 
+type Message []byte
+
 type KafkaWritter struct {
 	writter    *kafka.Writer
 	logWritter *bufio.Writer
@@ -61,19 +63,26 @@ func NewKafkaWritter(config KafkaWritterConfig) (*KafkaWritter, error) {
 	return kw, nil
 }
 
-func (kw *KafkaWritter) Write(msg []byte) {
+func (kw *KafkaWritter) Write(msgs []Message) {
 	// as key is not specified
 	// message can go to any partition using a round-robin technique
+	var kafkaMsgs []kafka.Message
+	for _, msg := range msgs {
+		kafkaMsgs = append(kafkaMsgs, kafka.Message{Value: msg})
+	}
+
 	err := kw.writter.WriteMessages(
 		context.Background(),
-		kafka.Message{Value: msg},
+		kafkaMsgs...,
 	)
 
 	if nil != err {
 		log.Println(err.Error())
 		if nil != kw.logWritter {
-			kw.logWritter.Write(msg)
-			kw.logWritter.Write(newLineByts)
+			for _, msg := range msgs {
+				kw.logWritter.Write(msg)
+				kw.logWritter.Write(newLineByts)
+			}
 		}
 	}
 }
