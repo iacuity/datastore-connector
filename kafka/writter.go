@@ -77,7 +77,7 @@ func (kw *KafkaWritter) Write(msgs []Message) {
 	)
 
 	if nil != err {
-		log.Println(err.Error())
+		log.Println("Kafka write message error: ", err.Error())
 		if nil != kw.logWritter {
 			for _, msg := range msgs {
 				kw.logWritter.Write(msg)
