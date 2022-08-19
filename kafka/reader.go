@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"log"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -43,10 +42,9 @@ func NewKafkaReader(config KafkaReaderConfig) (*KafkaReader, error) {
 	return &KafkaReader{reader: r}, nil
 }
 
-func (kr *KafkaReader) Write() ([]byte, error) {
+func (kr *KafkaReader) Read() ([]byte, error) {
 	msg, err := kr.reader.ReadMessage(context.Background())
 	if nil != err {
-		log.Println("Kafka read message error: ", err.Error())
 		return nil, err
 	}
 

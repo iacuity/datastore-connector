@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"log"
+
 	"os"
 	"time"
 
@@ -77,7 +77,6 @@ func (kw *KafkaWritter) Write(msgs []Message) {
 	)
 
 	if nil != err {
-		log.Println("Kafka write message error: ", err.Error())
 		if nil != kw.logWritter {
 			for _, msg := range msgs {
 				kw.logWritter.Write(msg)
