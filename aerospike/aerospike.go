@@ -138,6 +138,36 @@ func (conn *AerospikeConnector) AnyKeyExists(namespace, set string, keys []inter
 	return exist, nil
 }
 
+// PutKeyWithObject store the key with object
+func (conn *AerospikeConnector) PutKeyWithObject(namespace, set string, key interface{}, object interface{}, expiryInSec uint32) error {
+	if nil == conn || nil == conn.client {
+		return errors.New("invalid Aerospike connector / client")
+	}
+
+	akey, err := as.NewKey(namespace, set, key)
+	if nil != err {
+		return err
+	}
+
+	conn.client.PutObject(as.NewWritePolicy(0, expiryInSec), akey, object)
+
+	return nil
+}
+
+// GetObjectByKey return object for given keys
+func (conn *AerospikeConnector) GetObjectByKey(namespace, set string, key, object interface{}) error {
+	if nil == conn || nil == conn.client {
+		return errors.New("invalid Aerospike connector / client")
+	}
+
+	akey, err := as.NewKey(namespace, set, key)
+	if nil != err {
+		return err
+	}
+	err = conn.client.GetObject(as.NewPolicy(), akey, object)
+	return err
+}
+
 // close the Aerospike client connection
 func (conn *AerospikeConnector) Close() {
 	conn.client.Close()
