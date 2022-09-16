@@ -52,6 +52,7 @@ func NewHTTPClient(cfg ClientConfig) (*HTTPClient, error) {
 		}
 	}
 	return &HTTPClient{
+		clients:     clients,
 		clientCount: (uint64)(cfg.MaxHTTPClient),
 		clientIndex: 0,
 	}, nil
