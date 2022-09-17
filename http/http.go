@@ -133,7 +133,7 @@ func (req *HTTPRequest) Error() error {
 	return req.err
 }
 
-func (req *HTTPRequest) ResponseHeader() *http.Response {
+func (req *HTTPRequest) Response() *http.Response {
 	return req.response
 }
 
