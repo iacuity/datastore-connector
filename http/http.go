@@ -125,6 +125,18 @@ func (req *HTTPRequest) GetResponseBody() ([]byte, error) {
 	return body, nil
 }
 
+func (req *HTTPRequest) IsTimedout() bool {
+	return req.timedout
+}
+
+func (req *HTTPRequest) Error() error {
+	return req.err
+}
+
+func (req *HTTPRequest) ResponseHeader() *http.Response {
+	return req.response
+}
+
 func (req *HTTPRequest) GetResponseTimeMS() int64 {
 	return req.respTimeMS
 }
