@@ -106,10 +106,6 @@ func (req *HTTPRequest) Close() {
 	if nil != req.response {
 		req.response.Body.Close()
 	}
-
-	if nil != req.request {
-		req.Close()
-	}
 }
 
 func (req *HTTPRequest) GetResponseBody() ([]byte, error) {
