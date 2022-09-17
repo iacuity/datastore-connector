@@ -103,12 +103,12 @@ func (req *HTTPRequest) AddHeader(key, value string) {
 }
 
 func (req *HTTPRequest) Close() {
-	if nil != req.request {
-		req.Close()
-	}
-
 	if nil != req.response {
 		req.response.Body.Close()
+	}
+
+	if nil != req.request {
+		req.Close()
 	}
 }
 
@@ -133,8 +133,16 @@ func (req *HTTPRequest) Error() error {
 	return req.err
 }
 
-func (req *HTTPRequest) Response() *http.Response {
-	return req.response
+func (req *HTTPRequest) IsNilResponse() bool {
+	return nil == req.response
+}
+
+func (req *HTTPRequest) ResponseStatusCode() int {
+	statusCode := -1
+	if nil != req.response {
+		statusCode = req.response.StatusCode
+	}
+	return statusCode
 }
 
 func (req *HTTPRequest) GetResponseTimeMS() int64 {
