@@ -26,7 +26,7 @@ func Init(logFileName string) {
 		}),
 	)
 
-	logLevel.SetLevel(zap.InfoLevel)
+	logLevel.SetLevel(zap.DebugLevel)
 
 	options := []zap.Option{
 		zap.AddCaller(),
@@ -44,7 +44,7 @@ func Log() *zap.Logger {
 	return logger
 }
 
-func SetLogLevel(l uint8) {
+func SetLogLevel(l int8) {
 	if (zapcore.Level)(l) >= zapcore.DebugLevel && (zapcore.Level)(l) <= zapcore.FatalLevel {
 		logLevel.SetLevel((zapcore.Level)(l))
 	}
