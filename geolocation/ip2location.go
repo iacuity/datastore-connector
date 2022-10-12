@@ -9,18 +9,20 @@ type ip2Location struct {
 	ipV6DB *ip2location.DB
 }
 
-func NewIP2Location(
-	ipv4DBBINFile string,
-	ipv6DBBINFile string,
-) (location *ip2Location, err error) {
+type IP2LocationConfig struct {
+	IPV4DBBINFile string
+	IPV6DBBINFile string
+}
+
+func newIP2Location(cfg IP2LocationConfig) (location *ip2Location, err error) {
 	location = &ip2Location{}
 
-	location.ipV4DB, err = ip2location.OpenDB(ipv4DBBINFile)
+	location.ipV4DB, err = ip2location.OpenDB(cfg.IPV4DBBINFile)
 	if err != nil {
 		return
 	}
 
-	location.ipV6DB, err = ip2location.OpenDB(ipv6DBBINFile)
+	location.ipV6DB, err = ip2location.OpenDB(cfg.IPV6DBBINFile)
 	if err != nil {
 		return
 	}
@@ -53,7 +55,7 @@ func (location *ip2Location) geolocationByIp(ip string) (loc *Location, err erro
 	return
 }
 
-func (location *ip2Location) Close() {
+func (location *ip2Location) close() {
 	if nil != location {
 		if nil != location.ipV4DB {
 			location.ipV4DB.Close()

@@ -18,20 +18,38 @@ type Location struct {
 	Longitude     float64 `json:",omitempty"`
 }
 
+const (
+	GBISO2 = "GB"
+	UKISO2 = "UK"
+)
+
 var (
 	_geolocation geolocation
 )
 
 type geolocation interface {
 	geolocationByIp(ip string) (*Location, error)
+	close()
 }
 
-func InitGeoLocation(location geolocation) {
-	_geolocation = location
+func InitGeoLocation(cfg IP2LocationConfig) (err error) {
+	_geolocation, err = newIP2Location(cfg)
+	return
 }
 
 func GeoLocation(ip string) (*Location, error) {
-	return _geolocation.geolocationByIp(ip)
+	loc, err := _geolocation.geolocationByIp(ip)
+	if nil == err {
+		if GBISO2 == loc.CountryISO2 {
+			loc.CountryISO2 = UKISO2
+		}
+	}
+
+	return loc, err
+}
+
+func Close() {
+	_geolocation.close()
 }
 
 func IsIPV4(ip string) bool {
