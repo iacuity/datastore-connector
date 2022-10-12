@@ -27,7 +27,7 @@ func newIP2Location(cfg IP2LocationConfig) (location *ip2Location, err error) {
 		return
 	}
 
-	return &ip2Location{}, nil
+	return
 }
 
 func (location *ip2Location) geolocationByIp(ip string) (loc *Location, err error) {
