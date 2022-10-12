@@ -11,6 +11,24 @@ var (
 	logLevel = zap.NewAtomicLevel()
 )
 
+type Level int8
+
+const (
+	// DebugLevel logs are typically voluminous, and are usually disabled in  production.
+	DebugLevel Level = iota
+	// InfoLevel is the default logging priority.
+	InfoLevel
+	// WarnLevel logs are more important than Info, but don't need individual human review.
+	WarnLevel
+	// ErrorLevel logs are high-priority. If an application is running smoothly,
+	// it shouldn't generate any error-level logs.
+	ErrorLevel
+	// PanicLevel logs a message, then panics.
+	PanicLevel
+	// FatalLevel logs a message, then calls os.Exit(1).
+	FatalLevel
+)
+
 func Init(logFileName string) {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("2006/01/02 15:04:05.000")
@@ -44,9 +62,9 @@ func Log() *zap.Logger {
 	return logger
 }
 
-func SetLogLevel(l int8) {
-	if (zapcore.Level)(l) >= zapcore.DebugLevel && (zapcore.Level)(l) <= zapcore.FatalLevel {
-		logLevel.SetLevel((zapcore.Level)(l))
+func SetLogLevel(l Level) {
+	if l >= DebugLevel && l <= FatalLevel {
+		logLevel.SetLevel((zapcore.Level)(l - 1))
 	}
 }
 
