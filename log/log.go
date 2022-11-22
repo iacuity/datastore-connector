@@ -44,7 +44,7 @@ func Init(logFileName string) {
 		}),
 	)
 
-	logLevel.SetLevel(zap.DebugLevel)
+	logLevel.SetLevel(zap.InfoLevel)
 
 	options := []zap.Option{
 		zap.AddCaller(),

@@ -1,8 +1,10 @@
 package mysql
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"database/sql"
@@ -19,6 +21,8 @@ const (
 	defaultMaxIdleConns     = 1
 	defaultMaxOpenConns     = 5
 	defaultMaxLifetime      = 0 // no expiry
+
+	SQLTimeFormatLayout = "2006-01-02 15:04:05"
 )
 
 type MysqlConnector struct {
@@ -147,4 +151,44 @@ func (conn *MysqlConnector) Close() {
 	} else {
 		log.Println("Closed MySQL connection!!!")
 	}
+}
+
+// to use this function ensure that mysql connection user have
+// select privileges on  INFORMATION_SCHEMA.PARTITIONS
+// retrun true if data is updated in the table
+func (conn *MysqlConnector) CheckTableUpdatedSince(database string, tables []string, time time.Time) (updated bool, err error) {
+	values := make([]any, 0)
+	values = append(values, database)
+	for _, table := range tables {
+		values = append(values, table)
+	}
+	values = append(values, time.Format(SQLTimeFormatLayout))
+
+	var buff bytes.Buffer
+	buff.WriteString("SELECT UPDATE_TIME ")
+	buff.WriteString("FROM  INFORMATION_SCHEMA.PARTITIONS ")
+	buff.WriteString("WHERE TABLE_SCHEMA =  ?")
+	buff.WriteString(" AND TABLE_NAME   IN (")
+	buff.WriteString(strings.Repeat("?", len(tables)))
+	buff.WriteString(")")
+	buff.WriteString(" AND UPDATE_TIME >= ?")
+
+	row, er := conn.ExecuteSelect(buff.String(), values...)
+	for {
+		if nil != er {
+			err = er
+			break
+		}
+
+		if row.Next() {
+			updated = true
+		}
+		break
+	}
+
+	if nil != row {
+		row.Close()
+	}
+
+	return
 }
