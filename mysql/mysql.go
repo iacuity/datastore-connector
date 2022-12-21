@@ -178,9 +178,6 @@ func (conn *MysqlConnector) CheckTableUpdatedSince(database string, tables []str
 	buff.WriteString(")")
 	buff.WriteString(" AND (UPDATE_TIME >= ? OR CREATE_TIME >= ?)")
 
-	log.Println(buff.String())
-	log.Println(values)
-
 	row, er := conn.ExecuteSelect(buff.String(), values...)
 	for {
 		if nil != er {
