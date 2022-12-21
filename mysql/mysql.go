@@ -164,6 +164,7 @@ func (conn *MysqlConnector) CheckTableUpdatedSince(database string, tables []str
 	}
 
 	placeHolder := strings.Repeat("?,", len(tables))
+	placeHolder = placeHolder[:len(placeHolder)-1]
 
 	values = append(values, time.Format(SQLTimeFormatLayout))
 	values = append(values, time.Format(SQLTimeFormatLayout))
@@ -172,10 +173,13 @@ func (conn *MysqlConnector) CheckTableUpdatedSince(database string, tables []str
 	buff.WriteString("SELECT UPDATE_TIME ")
 	buff.WriteString("FROM  INFORMATION_SCHEMA.PARTITIONS ")
 	buff.WriteString("WHERE TABLE_SCHEMA =  ?")
-	buff.WriteString(" AND TABLE_NAME   IN (")
-	buff.WriteString(placeHolder[:len(placeHolder)-1])
+	buff.WriteString(" AND TABLE_NAME IN (")
+	buff.WriteString(placeHolder)
 	buff.WriteString(")")
-	buff.WriteString(" AND (UPDATE_TIME >= ? OR CREATE_TIME >= ?")
+	buff.WriteString(" AND (UPDATE_TIME >= ? OR CREATE_TIME >= ?)")
+
+	log.Println(buff.String())
+	log.Println(values)
 
 	row, er := conn.ExecuteSelect(buff.String(), values...)
 	for {
