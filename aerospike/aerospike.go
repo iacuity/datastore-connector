@@ -4,11 +4,11 @@ import (
 	"errors"
 	"log"
 
-	as "github.com/aerospike/aerospike-client-go/v5"
+	as "github.com/aerospike/aerospike-client-go/v6"
 )
 
 const (
-	emptyBinName  = "_"
+	emptyBinName  = ""
 	emptyBinValue = true
 )
 
@@ -43,6 +43,26 @@ func NewAerospikeConnector(aHosts []AerospikeHost) (*AerospikeConnector, error) 
 	return &AerospikeConnector{
 		client: client,
 	}, nil
+}
+
+// return the value of given key
+func (conn *AerospikeConnector) GetKey(namespace, set string, key interface{}, binNames []string) (map[string]interface{}, error) {
+	if nil == conn || nil == conn.client {
+		return nil, errors.New("Invalid Aerospike connector / client!!!")
+	}
+
+	akey, err := as.NewKey(namespace, set, key)
+	if nil != err {
+		return nil, err
+	}
+
+	record, err := conn.client.Get(as.NewPolicy(), akey, binNames...)
+
+	if nil != err {
+		return nil, err
+	}
+
+	return (map[string]interface{})(record.Bins), err
 }
 
 // expiryInSec value will be
@@ -166,6 +186,33 @@ func (conn *AerospikeConnector) GetObjectByKey(namespace, set string, key, objec
 	}
 	err = conn.client.GetObject(as.NewPolicy(), akey, object)
 	return err
+}
+
+// GetAutomicCounter return automic counter for given key by increment with given value
+func (conn *AerospikeConnector) GetAutomicCounter(namespace, set string, key interface{}, value int, expiryInSec uint32) (int, error) {
+	if nil == conn || nil == conn.client {
+		return 0, errors.New("invalid Aerospike connector / client")
+	}
+
+	akey, err := as.NewKey(namespace, set, key)
+	if nil != err {
+		return 0, err
+	}
+
+	bin := as.NewBin(emptyBinName, value)
+
+	record, err := conn.client.Operate(
+		as.NewWritePolicy(0, expiryInSec),
+		akey,
+		as.AddOp(bin),
+		as.GetOp(),
+	)
+
+	if nil != err {
+		return 0, err
+	}
+
+	return record.Bins[""].(int), err
 }
 
 // close the Aerospike client connection
