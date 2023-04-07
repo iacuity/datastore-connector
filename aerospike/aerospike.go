@@ -29,7 +29,8 @@ func NewAerospikeConnector(aHosts []AerospikeHost) (*AerospikeConnector, error) 
 	}
 
 	policy := as.NewClientPolicy()
-	policy.FailIfNotConnected = true
+	policy.ConnectionQueueSize = 500
+	policy.LimitConnectionsToQueueSize = false
 
 	client, err := as.NewClientWithPolicyAndHost(policy, hosts...)
 	if nil != err {
